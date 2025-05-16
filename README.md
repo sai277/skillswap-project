@@ -34,3 +34,23 @@ skillswap-project/
 ├── static/                # Static files (CSS/JS/Images)
 ├── db.sqlite3             # Default Django database
 ├── manage.py              # Django entry point
+
+# Clone the project
+git clone https://github.com/sai277/skillswap-project.git
+cd skillswap-project
+
+# Create and activate a virtual environment
+python -m venv venv
+
+# Activate virtual environment
+venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Apply migrations
+python manage.py makemigrations
+python manage.py migrate
+
+# Run development server
+python manage.py runserver
