@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+    <div class="text-center mb-5">
+        <h3 class="fw-bold text-primary">📅 Your Session Dashboard</h3>
+        <p class="text-muted">View your upcoming and past sessions as a mentor and learner.</p>
+    </div>
+
+    <!-- MENTOR SESSIONS -->
+    <div class="mb-5">
+        <h4 class="mb-3 text-success"><i class="fas fa-chalkboard-teacher me-2"></i>Sessions You've Been Requested For (Mentor)</h4>
+        {% if mentor_sessions %}
+            {% for session in mentor_sessions %}
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5 class="card-title">👤 Learner: {{ session.learner.get_full_name|default:session.learner.username }}</h5>
+                                <p><strong>Scheduled:</strong> {{ session.date }} {{ session.time }}</p>
+                                <p><strong>Message:</strong> {{ session.message|default:"No message provided." }}</p>
+                                <p>
+                                    <strong>Status:</strong>
+                                    <span class="badge 
+                                        {% if session.status == 'pending' %} bg-warning text-dark
+                                        {% elif session.status == 'accepted' %} bg-success
+                                        {% elif session.status == 'rejected' %} bg-danger
+                                        {% else %} bg-secondary
+                                        {% endif %}">
+                                        {{ session.status|capfirst }}
+                                    </span>
+                                </p>
+
+                                {% if session.status == 'accepted' %}
+                                    <div class="mt-3">
+                                        <a href="#" class="btn btn-outline-primary btn-sm me-2"
+                                            onclick="addToGoogleCalendar('{{ session.date|date:'Y-m-d' }}', '{{ session.time|time:'H:i' }}', 'Session with {{ session.mentor.get_full_name }}', '{{ session.message|default:'Mentorship Session' }}')">
+                                            📅 Google Calendar
+                                        </a>
+                                        <a href="{% url 'chat_view' session.learner.id %}" class="btn btn-outline-secondary btn-sm me-2">
+                                            💬 Chat
+                                        </a>
+
+                                        {% if session.id not in submitted_feedback_sessions %}
+                                            <a href="{% url 'feedback_page' session.id %}" class="btn btn-primary btn-sm">Give Feedback</a>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            {% if session.status == 'pending' and request.user == session.mentor %}
+                                <div class="text-end mt-2">
+                                    <a href="{% url 'respond_to_session' session.id 'accept' %}" class="btn btn-success btn-sm me-2">✅ Accept</a>
+                                    <a href="{% url 'respond_to_session' session.id 'reject' %}" class="btn btn-danger btn-sm">❌ Reject</a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="alert alert-info text-center">
+                <i class="fas fa-info-circle me-2"></i>No mentor session requests found.
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- LEARNER SESSIONS -->
+    <div>
+        <h4 class="mb-3 text-primary"><i class="fas fa-user-graduate me-2"></i>Sessions You've Requested (Learner)</h4>
+        {% if learner_sessions %}
+            {% for session in learner_sessions %}
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5 class="card-title">👨‍🏫 Mentor: {{ session.mentor.get_full_name|default:session.mentor.username }}</h5>
+                                <p><strong>Scheduled:</strong> {{ session.date }} {{ session.time }}</p>
+                                <p><strong>Message:</strong> {{ session.message|default:"No message provided." }}</p>
+                                <p>
+                                    <strong>Status:</strong>
+                                    <span class="badge 
+                                        {% if session.status == 'pending' %} bg-warning text-dark
+                                        {% elif session.status == 'accepted' %} bg-success
+                                        {% elif session.status == 'rejected' %} bg-danger
+                                        {% else %} bg-secondary
+                                        {% endif %}">
+                                        {{ session.status|capfirst }}
+                                    </span>
+                                </p>
+
+                                {% if session.status == 'accepted' and session.id not in submitted_feedback_sessions %}
+                                    <a href="{% url 'chat_view' session.mentor.id %}" class="btn btn-outline-secondary btn-sm me-2">
+                                        💬 Chat
+                                    </a>
+                                    <a href="{% url 'feedback_page' session.id %}" class="btn btn-primary btn-sm mt-2">Give Feedback</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="alert alert-info text-center">
+                <i class="fas fa-info-circle me-2"></i>No session requests made yet.
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function formatDateTime(dateStr, timeStr) {
+    try {
+        console.log("Received date:", dateStr);
+        console.log("Received time:", timeStr);
+        if (!dateStr || !timeStr) throw new Error("Invalid date or time");
+
+        const dateTimeStr = `${dateStr}T${timeStr}:00`;
+        const startDate = new Date(dateTimeStr);
+
+        if (isNaN(startDate)) throw new Error("Invalid datetime format");
+
+        const endDate = new Date(startDate.getTime() + 30 * 60000); // 30 mins later
+
+        const format = (d) => d.toISOString().replace(/[-:]/g, '').split('.')[0];
+
+        return {
+            start: format(startDate),
+            end: format(endDate)
+        };
+    } catch (e) {
+        alert("Error formatting date and time: " + e.message);
+        console.error(e);
+        return { start: '', end: '' };
+    }
+}
+
+function addToGoogleCalendar(date, time, title, description) {
+    const { start, end } = formatDateTime(date, time);
+    if (!start || !end) return;
+
+    const url = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${start}/${end}&details=${encodeURIComponent(description)}`;
+    window.open(url, '_blank');
+}
+</script>
+{% endblock %}

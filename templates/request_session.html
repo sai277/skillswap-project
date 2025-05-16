@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    <h4 class="mb-3 text-primary fw-bold">
+                        📅 Request a Session with {{ mentor.first_name }} {{ mentor.last_name }}
+                    </h4>
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Preferred Date and Time</label>
+                            <input type="datetime-local" name="scheduled_time" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Message</label>
+                            <textarea name="message" class="form-control" rows="4" placeholder="Write a brief note..." required></textarea>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success fw-bold">
+                                <i class="fas fa-paper-plane me-1"></i> Send Request
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="text-center mt-3">
+                <a href="{% url 'mentor_search' %}" class="text-decoration-none text-muted">
+                    ← Back to Search
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

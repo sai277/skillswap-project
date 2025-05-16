@@ -1,0 +1,193 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow p-4 border-0">
+        {% include 'messages.html' %}
+                <!-- Header -->
+                <div class="text-center mb-4">
+                    <h3 class="mt-3 text-primary fw-bold">Your Skill Hub</h3>
+                    <p class="text-muted small">“Your skills are your currency. Keep investing in yourself.”</p>
+                </div>
+
+                <!-- Add Skill Form -->
+                <form class="d-flex flex-wrap gap-2 align-items-center justify-content-center mb-4" onsubmit="return false;">
+                    <input type="text" class="form-control w-50" placeholder="e.g. Python, Data Science, UI Design" id="skillInput">
+                    <select class="form-select w-auto" id="skillType">
+                        <option value="soft">Soft Skill</option>
+                        <option value="technical">Technical Skill</option>
+                    </select>
+                    <button class="btn btn-primary px-4" onclick="addSkill()">Add Skill</button>
+                </form>
+
+                <!-- Soft Skills List -->
+                <div class="mb-4">
+                    <h5 class="text-secondary mb-2">🧠 Soft Skills</h5>
+                    <div id="softSkills" class="d-flex flex-wrap gap-2 border rounded p-3 min-height">
+                        <p class="text-muted mb-0" id="softEmpty">No soft skills added yet.</p>
+                    </div>
+                </div>
+
+                <!-- Technical Skills List -->
+                <div class="mb-4">
+                    <h5 class="text-secondary mb-2">💻 Technical Skills</h5>
+                    <div id="technicalSkills" class="d-flex flex-wrap gap-2 border rounded p-3 min-height">
+                        <p class="text-muted mb-0" id="techEmpty">No technical skills added yet.</p>
+                    </div>
+                </div>
+
+                <!-- Save Button -->
+                <div class="text-center mt-4">
+                    <button class="btn btn-success" onclick="saveSkills()">Save Changes</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .skill-badge {
+        background-color: #eaf4ff;
+        border: 1px solid #b3d4fc;
+        color: #084298;
+        border-radius: 20px;
+        padding: 6px 12px;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .skill-badge input {
+        border: none;
+        background: transparent;
+        width: auto;
+    }
+    .skill-actions button {
+        background: none;
+        border: none;
+        font-size: 14px;
+        cursor: pointer;
+    }
+    .skill-actions button:hover {
+        color: red;
+    }
+    .min-height {
+        min-height: 60px;
+    }
+</style>
+
+<script>
+    function addSkill() {
+        const input = document.getElementById('skillInput');
+        const type = document.getElementById('skillType').value;
+        const value = input.value.trim();
+
+        if (!value) {
+            alert("Please enter a skill.");
+            return;
+        }
+
+        const container = type === 'soft' ? document.getElementById('softSkills') : document.getElementById('technicalSkills');
+        const emptyText = type === 'soft' ? document.getElementById('softEmpty') : document.getElementById('techEmpty');
+        emptyText.style.display = 'none';
+
+        const badge = createSkillBadge(value, type);
+        container.appendChild(badge);
+
+        input.value = '';
+    }
+
+    function createSkillBadge(value, type) {
+        const badge = document.createElement('div');
+        badge.className = 'skill-badge';
+        badge.dataset.type = type;
+
+        const text = document.createElement('span');
+        text.textContent = value;
+        text.className = 'skill-text';
+
+        const actions = document.createElement('div');
+        actions.className = 'skill-actions';
+
+        const editBtn = document.createElement('button');
+        editBtn.innerHTML = '📝';
+        editBtn.title = "Edit";
+        editBtn.onclick = () => {
+            const newText = prompt("Edit skill:", text.textContent);
+            if (newText !== null && newText.trim() !== '') {
+                text.textContent = newText.trim();
+            }
+        };
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.innerHTML = '❌';
+        deleteBtn.title = "Delete";
+        deleteBtn.onclick = () => {
+            badge.remove();
+            checkEmptyList(type);
+        };
+
+        actions.appendChild(editBtn);
+        actions.appendChild(deleteBtn);
+
+        badge.appendChild(text);
+        badge.appendChild(actions);
+        return badge;
+    }
+
+    function checkEmptyList(type) {
+        const list = type === 'soft' ? document.getElementById('softSkills') : document.getElementById('technicalSkills');
+        const emptyText = type === 'soft' ? document.getElementById('softEmpty') : document.getElementById('techEmpty');
+        if (list.children.length === 0) {
+            emptyText.style.display = 'block';
+        }
+    }
+
+    function saveSkills() {
+        const softSkills = Array.from(document.querySelectorAll('#softSkills .skill-text')).map(el => el.textContent);
+        const technicalSkills = Array.from(document.querySelectorAll('#technicalSkills .skill-text')).map(el => el.textContent);
+
+        const payload = {
+            softSkills,
+            technicalSkills
+        };
+
+        fetch('/skills/save/', {
+            method: 'POST',
+            body: JSON.stringify(payload),
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert("✅ Skills saved successfully!");
+            location.reload();  // Reload the page after user clicks OK on alert
+        })
+        .catch(err => {
+            alert("❌ Failed to save skills.");
+            console.error(err);
+        });
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let cookie of cookies) {
+                cookie = cookie.trim();
+                if (cookie.startsWith(name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+{% endblock %}

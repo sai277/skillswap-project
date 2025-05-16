@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<style>
+    .btn-toggle {
+        font-size: 1.8rem;
+        padding: 12px 24px;
+        border-radius: 10px;
+        width: 160px;
+        height: 100px;
+        line-height: 1.2;
+    }
+    .btn-check:checked + .btn {
+        transform: scale(1.05);
+    }
+</style>
+
+<div class="container mt-5 p-4 border rounded shadow-sm bg-light">
+    <h2 class="mb-4 text-center text-primary fw-bold">We Value Your Feedback 🙏</h2>
+
+    <form method="post" action="{% url 'feedback_page' session.id %}">
+        {% csrf_token %}
+
+        <div class="d-flex justify-content-center mb-4 gap-4">
+            <!-- Satisfied Button -->
+            <input type="radio" class="btn-check" name="rating" id="thumbs_up" value="up" autocomplete="off">
+            <label class="btn btn-outline-success btn-toggle fw-bold" for="thumbs_up">
+                👍<br><small>Satisfied</small>
+            </label>
+
+            <!-- Unsatisfied Button -->
+            <input type="radio" class="btn-check" name="rating" id="thumbs_down" value="down" autocomplete="off">
+            <label class="btn btn-outline-danger btn-toggle fw-bold" for="thumbs_down">
+                👎<br><small>Unsatisfied</small>
+            </label>
+        </div>
+
+        <div class="mb-4 text-center">
+            <textarea name="comment" class="form-control w-50 mx-auto shadow-sm" placeholder="Write your comments here..." rows="3"></textarea>
+        </div>
+
+        <div class="text-center">
+            <button type="submit" class="btn btn-primary px-5 py-2 fw-bold">Submit Feedback</button>
+        </div>
+    </form>
+
+    <!-- feedback.html -->
+    {% if messages %}
+        <div class="container mt-3">
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} text-center" role="alert">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if feedback_submitted %}
+      <script>
+          document.addEventListener('DOMContentLoaded', function () {
+              var thankYouModal = new bootstrap.Modal(document.getElementById('thankYouModal'));
+              thankYouModal.show();
+          });
+      </script>
+    {% endif %}
+
+    <!-- Thank You Modal -->
+    <div class="modal fade" id="thankYouModal" tabindex="-1" aria-labelledby="thankYouModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content text-center">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="thankYouModalLabel">Thank You!</h5>
+                </div>
+                <div class="modal-body">
+                    🎉 Your feedback has been successfully submitted.
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

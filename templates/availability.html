@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-lg border-0 rounded-4 p-4">
+                <h3 class="mb-4 text-primary fw-bold">📅 Set Your Availability</h3>
+                
+                <div class="row g-3 align-items-end mb-4">
+                    <div class="col-md-4">
+                        <label class="form-label">Select Date</label>
+                        <input type="date" id="dateInput" class="form-control border-primary shadow-sm">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Start Time</label>
+                        <input type="time" id="startTime" class="form-control border-primary shadow-sm">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">End Time</label>
+                        <input type="time" id="endTime" class="form-control border-primary shadow-sm">
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-success w-100" onclick="addSlot()">➕ Add Slot</button>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div id="slotList" class="mb-4">
+                    <p class="text-muted">Your added time slots will appear below ⬇️</p>
+                </div>
+
+                <button class="btn btn-primary w-100" onclick="saveSlots()">💾 Save All Availability</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .slot-item {
+        background-color: #f9f9f9;
+        padding: 12px 20px;
+        border: 1px solid #ddd;
+        border-left: 5px solid #0d6efd;
+        border-radius: 6px;
+        margin-bottom: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: background 0.3s ease;
+    }
+
+    .slot-item:hover {
+        background-color: #eef3fb;
+    }
+
+    .slot-item span {
+        font-weight: 500;
+        color: #333;
+    }
+
+    .slot-item button {
+        border: none;
+        background: none;
+        font-size: 18px;
+        color: #dc3545;
+        cursor: pointer;
+    }
+
+    .form-label {
+        font-weight: 600;
+    }
+
+    .text-primary {
+        color: #0d6efd !important;
+    }
+</style>
+
+<script>
+    let slots = [];
+
+    function addSlot() {
+        const date = document.getElementById('dateInput').value;
+        const start = document.getElementById('startTime').value;
+        const end = document.getElementById('endTime').value;
+
+        if (!date || !start || !end) {
+            alert("Please fill in all fields before adding a slot.");
+            return;
+        }
+
+        slots.push({ date, start_time: start, end_time: end });
+        renderSlots();
+    }
+
+    function renderSlots() {
+        const container = document.getElementById('slotList');
+        container.innerHTML = '';
+        if (slots.length === 0) {
+            container.innerHTML = "<p class='text-muted fst-italic'>No slots added yet.</p>";
+        }
+
+        slots.forEach((slot, index) => {
+            const div = document.createElement('div');
+            div.className = 'slot-item';
+
+            const span = document.createElement('span');
+            span.textContent = `${slot.date} | ${slot.start_time} - ${slot.end_time}`;
+
+            const delBtn = document.createElement('button');
+            delBtn.innerHTML = '❌';
+            delBtn.title = "Remove";
+            delBtn.onclick = () => {
+                slots.splice(index, 1);
+                renderSlots();
+            };
+
+            div.appendChild(span);
+            div.appendChild(delBtn);
+            container.appendChild(div);
+        });
+    }
+
+    function saveSlots() {
+        if (slots.length === 0) {
+            alert("Please add at least one availability slot before saving.");
+            return;
+        }
+
+        fetch("{% url 'save_availability' %}", {
+            method: 'POST',
+            body: JSON.stringify({ slots }),
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert(data.message);
+            location.reload();
+        });
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let cookie of cookies) {
+                cookie = cookie.trim();
+                if (cookie.startsWith(name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+{% endblock %}
