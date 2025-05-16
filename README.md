@@ -33,7 +33,8 @@ skillswap-project/
 ├── templates/             # HTML templates
 ├── static/                # Static files (CSS/JS/Images)
 ├── db.sqlite3             # Default Django database
-├── manage.py              # Django entry point
+├── manage.py              # Django entry point 
+```
 
 # Clone the project
 git clone https://github.com/sai277/skillswap-project.git
