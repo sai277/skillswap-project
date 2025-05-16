@@ -1,0 +1,344 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}SkillSwap - Home{% endblock %}
+{% block content %}
+
+<style>
+  .bg-img {
+    height: 90vh;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+  }
+
+  .bg-img::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+  }
+
+  .bg-img .container {
+    position: relative;
+    z-index: 2;
+  }
+
+  .icon-box i {
+    color: #007bff;
+    transition: transform 0.3s ease;
+  }
+
+  .icon-box:hover i {
+    transform: scale(1.2);
+  }
+
+  .cta-section {
+    background-color: #007bff;
+    padding: 4rem 1rem;
+  }
+
+  .section-title {
+    font-weight: bold;
+    margin-bottom: 2rem;
+  }
+
+  .dashboard-box {
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    background-color: #ffffff;
+    height: 100%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+
+  .dashboard-box h5 {
+    font-weight: 600;
+  }
+
+  .dashboard-box ul {
+    padding-left: 1rem;
+    margin-top: 1rem;
+  }
+
+  .dashboard-box li::before {
+    content: "• ";
+    color: #007bff;
+  }
+</style>
+
+<!-- Hero Slider -->
+<div id="heroSlider" class="carousel slide" data-bs-ride="carousel">
+  <div class="carousel-inner">
+    <div class="carousel-item active">
+      <div class="bg-img slide1 d-flex align-items-center justify-content-center text-center text-white" style="background-image: url('{% static 'images/slider1.jpg' %}');">
+        <div class="container">
+          <h1 class="fw-bold display-4">Unlock Your Potential</h1>
+          <p class="lead">Connect, Learn, and Grow with Industry Experts</p>
+        </div>
+      </div>
+    </div>
+    <div class="carousel-item">
+      <div class="bg-img slide2 d-flex align-items-center justify-content-center text-center text-white" style="background-image: url('{% static 'images/slider2.jpg' %}');">
+        <div class="container">
+          <h1 class="fw-bold display-4">Bridge the Skill Gap</h1>
+          <p class="lead">Mentorship and Learning in One Place</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if user.is_authenticated %}
+<section class="py-5 bg-light">
+  <div class="container">
+    <h2 class="text-center mb-5 fw-bold text-dark">Your Personalized Dashboard</h2>
+    <div class="row g-4 justify-content-center">
+      
+      <!-- Soft Skills Card -->
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body">
+            <h5 class="card-title text-primary fw-semibold mb-3">
+              <i class="bi bi-person-lines-fill me-2"></i>Soft Skills
+            </h5>
+            {% if soft_skills %}
+              <ul class="list-group list-group-flush">
+                {% for skill in soft_skills %}
+                  <li class="list-group-item">{{ skill }}</li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <p class="text-muted">No soft skills added yet.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Technical Skills Card -->
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body">
+            <h5 class="card-title text-success fw-semibold mb-3">
+              <i class="bi bi-gear-fill me-2"></i>Technical Skills
+            </h5>
+            {% if technical_skills %}
+              <ul class="list-group list-group-flush">
+                {% for skill in technical_skills %}
+                  <li class="list-group-item">{{ skill }}</li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <p class="text-muted">No technical skills added yet.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Interests Card -->
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body">
+            <h5 class="card-title text-warning fw-semibold mb-3">
+              <i class="bi bi-star-fill me-2"></i>Interests
+            </h5>
+            {% if interests %}
+              <ul class="list-group list-group-flush">
+                {% for interest in interests %}
+                  <li class="list-group-item">{{ interest }}</li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <p class="text-muted">No interests specified.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% if feedbacks %}
+  <div class="container my-4">
+    <h4 class="mb-4 text-primary fw-bold">Your Feedbacks</h4>
+    <div class="row row-cols-1 row-cols-md-2 g-4">
+      {% for fb in feedbacks %}
+        <div class="col">
+          <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+              <h5 class="card-title text-success">Session #{{ fb.session.id }}</h5>
+              <p class="card-text">
+                <strong>Rating:</strong> 
+                {% if fb.rating == "up" %}
+                  <span class="text-success">&#128077; Thumbs Up</span>
+                {% elif fb.rating == "down" %}
+                  <span class="text-danger">&#128078; Thumbs Down</span>
+                {% else %}
+                  Not rated
+                {% endif %}
+              </p>
+              <p class="card-text">
+                <strong>Comment:</strong><br>
+                {{ fb.comment|default:"No comment" }}
+              </p>
+            </div>
+            <div class="card-footer bg-white text-muted small">
+              Submitted on: {{ fb.submitted_at|date:"F j, Y, g:i a" }}
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% else %}
+  <div class="container my-5">
+    <div class="alert alert-info text-center">
+      No feedback submitted yet.
+    </div>
+  </div>
+{% endif %}
+
+{% if sessions %}
+  <div class="container my-5">
+    <h4 class="mb-4 text-primary fw-bold">Session Tracking</h4>
+    <div class="row row-cols-1 row-cols-md-2 g-4">
+      {% for session in sessions %}
+        <div class="col">
+          <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+              <h5 class="card-title text-dark">
+                <i class="bi bi-journal-check me-2 text-primary"></i>
+                Session with {{ session.mentor.get_full_name|default:session.mentor.username }}
+              </h5>
+              <p class="mb-2">
+                <strong>Date:</strong> {{ session.date }}
+              </p>
+              <p class="mb-2">
+                <strong>Time:</strong> {{ session.time }}
+              </p>
+              <p class="mb-0">
+                <strong>Status:</strong>
+                {% if session.status == 'accepted' %}
+                  <span class="badge bg-success">Accepted</span>
+                {% elif session.status == 'pending' %}
+                  <span class="badge bg-warning text-dark">Pending</span>
+                {% elif session.status == 'rejected' %}
+                  <span class="badge bg-danger">Rejected</span>
+                {% endif %}
+              </p>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% else %}
+  <div class="container my-5">
+    <div class="alert alert-secondary text-center">
+      No session requests found.
+    </div>
+  </div>
+{% endif %}
+
+
+
+{% if session_action == "accepted" %}
+  <div class="alert alert-success shadow-sm mt-4">
+      <h5 class="mb-2">🎉 Session Accepted!</h5>
+      <p>You're all set. Here’s what to do next:</p>
+      <ul>
+          <li>📅 Add it to your calendar</li>
+          <li>💬 Start a conversation with your mentor</li>
+          <li>📝 Prepare your learning goals</li>
+      </ul>
+  </div>
+{% elif session_action == "rejected" %}
+  <div class="alert alert-warning shadow-sm mt-4">
+      <h5 class="mb-2">Session Rejected</h5>
+      <p>No worries, here's how you can proceed:</p>
+      <ul>
+          <li>⏱ Adjust your availability</li>
+          <li>🔍 Look for other mentor matches</li>
+      </ul>
+  </div>
+{% endif %}
+
+
+
+<!-- What We Do -->
+<section class="py-5 bg-white text-center">
+  <div class="container">
+    <h2 class="fw-bold text-dark mb-3">What We Do</h2>
+    <p class="text-muted fs-5 mx-auto" style="max-width: 800px;">
+      SkillSwap bridges the gap between learners and mentors — enabling professional growth through guided, real-world knowledge exchange.
+    </p>
+  </div>
+</section>
+
+<!-- Core Features -->
+<section class="py-5 bg-light">
+  <div class="container">
+    <h2 class="fw-bold text-center text-dark mb-5">Our Core Features</h2>
+    <div class="row text-center g-4">
+
+      <!-- Feature 1 -->
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body">
+            <div class="mb-3 text-primary">
+              <i class="fa-solid fa-users fa-2x"></i>
+            </div>
+            <h5 class="fw-semibold">Expert Mentors</h5>
+            <p class="text-muted">
+              Connect with vetted professionals offering mentorship based on years of experience.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feature 2 -->
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body">
+            <div class="mb-3 text-success">
+              <i class="fa-solid fa-graduation-cap fa-2x"></i>
+            </div>
+            <h5 class="fw-semibold">Interactive Learning</h5>
+            <p class="text-muted">
+              Engage in real-time sessions, collaborative projects, and active group discussions.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feature 3 -->
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body">
+            <div class="mb-3 text-warning">
+              <i class="fa-solid fa-chart-line fa-2x"></i>
+            </div>
+            <h5 class="fw-semibold">Progress Tracking</h5>
+            <p class="text-muted">
+              Monitor your development with measurable goals, feedback systems, and progress stats.
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- Call to Action -->
+<section class="py-5 text-center text-white" style="background: #2c3e50;">
+  <div class="container">
+    <h2 class="fw-bold mb-3">Ready to Grow Your Skills?</h2>
+    <p class="fs-5 mb-4">Join SkillSwap today and take the next step toward your professional growth journey.</p>
+    <a href="{% url 'signup' %}" class="btn btn-outline-light btn-lg px-4">Get Started</a>
+  </div>
+</section>
+
+{% endblock %}

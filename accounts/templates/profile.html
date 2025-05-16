@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}SkillSwap - My Profile{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    {% include 'messages.html' %}
+    <div class="card shadow-lg rounded-4 p-4 mx-auto" style="max-width: 800px;">
+        <h3 class="text-center text-primary mb-3">
+            <i class="fa-solid fa-circle-user me-2"></i>My Profile
+        </h3>
+        <p class="text-center text-muted mb-4">Here’s your current profile information</p>
+
+        <!-- Profile Picture -->
+        <div class="text-center mb-4">
+            {% if user.profile_picture %}
+                <img src="{{ user.profile_picture.url|default:'/static/images/default-user.png' }}" 
+                onerror="this.onerror=null; this.src='/static/images/default-user.png';"
+                class="rounded-circle shadow"
+                style="width: 130px; height: 130px; object-fit: cover;">
+            {% endif %}        
+        </div>
+
+        <!-- Profile Details -->
+        <div class="row g-3">
+            <div class="col-md-6">
+                <h6 class="text-muted mb-1">First Name</h6>
+                <p>{{ user.first_name }}</p>
+            </div>
+            <div class="col-md-6">
+                <h6 class="text-muted mb-1">Last Name</h6>
+                <p>{{ user.last_name }}</p>
+            </div>
+            <div class="col-md-6">
+                <h6 class="text-muted mb-1">Username</h6>
+                <p>{{ user.username }}</p>
+            </div>
+            <div class="col-md-6">
+                <h6 class="text-muted mb-1">Email</h6>
+                <p>{{ user.email }}</p>
+            </div>
+            <div class="col-md-6">
+                <h6 class="text-muted mb-1">Phone</h6>
+                <p>{{ user.contact_number|default:"N/A" }}</p>
+            </div>
+            <div class="col-md-6">
+                <h6 class="text-muted mb-1">Address</h6>
+                <p>{{ profile.location|default:"N/A" }}</p>
+            </div>
+            <div class="col-12">
+                <h6 class="text-muted mb-1">Bio</h6>
+                <p>{{ profile.bio|default:"No bio available." }}</p>
+            </div>
+            <div class="col-12">
+                <h6 class="text-muted mb-1">User Type</h6>
+                <p class="badge bg-secondary text-capitalize px-3 py-2">{{ profile.user_type }}</p>
+            </div>
+        </div>
+
+        <h3 class="mb-4 fw-bold text-dark">Your Achievements <span class="ms-2">🏅</span></h3>
+
+        {% if earned_badges %}
+            <div class="row g-4">
+                {% for user_badge in earned_badges %}
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body text-center">
+                                <div class="mb-3">
+                                    <span class="display-6">{{ user_badge.badge.icon }}</span>
+                                </div>
+                                <h5 class="card-title text-primary fw-semibold">{{ user_badge.badge.name }}</h5>
+                                <p class="card-text text-secondary small">{{ user_badge.badge.description }}</p>
+                                <hr class="my-2" style="opacity: 0.1;">
+                                <p class="mb-0 text-muted small">
+                                    <i class="bi bi-calendar3"></i> Earned on: {{ user_badge.awarded_at|date:"M d, Y" }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-light border shadow-sm">
+                <strong>No badges earned yet.</strong> Start learning to earn your first one!
+            </div>
+        {% endif %}
+
+        <!-- Action Buttons -->
+        <div class="d-flex justify-content-between mt-4">
+            <a href="{% url 'index' %}" class="btn btn-outline-secondary">
+                <i class="fa fa-arrow-left me-1"></i>Back
+            </a>
+            <a href="{% url 'edit_profile' %}" class="btn btn-primary">
+                <i class="fa fa-pen-to-square me-1"></i>Edit Profile
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}SkillSwap - SignUp{% endblock %}
+{% block content %}
+
+<div class="container py-5">
+    {% include 'messages.html' %}
+    <div class="card shadow-lg rounded-4 p-4 mx-auto" style="max-width: 900px;">
+        <h3 class="text-center text-primary mb-3"><i class="fa-solid fa-user-plus me-2"></i>Sign Up for SkillSwap</h3>
+        <p class="text-center text-muted mb-4">Fill in the details below to create your account</p>
+
+        <form action="{% url 'signup' %}" method="post" enctype="multipart/form-data" autocomplete="off">
+            {% csrf_token %}
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label for="first_name" class="form-label">First Name</label>
+                    <input type="text" id="first_name" name="first_name" class="form-control" placeholder="Enter First Name" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="last_name" class="form-label">Last Name</label>
+                    <input type="text" id="last_name" name="last_name" class="form-control" placeholder="Enter Last Name" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" id="username" name="username" class="form-control" placeholder="Choose a unique username" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" name="password" id="password" class="form-control" placeholder="Enter a strong password" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" id="email" name="email" class="form-control" placeholder="Enter your email address" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="phone" class="form-label">Contact Number</label>
+                    <input type="text" name="phone" id="phone" class="form-control" placeholder="Enter your contact number" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="location" class="form-label">Address</label>
+                    <textarea name="address" id="address" class="form-control" rows="2" placeholder="Enter your address"></textarea>
+                </div>
+                <div class="col-md-6">
+                    <label for="bio" class="form-label">Bio</label>
+                    <textarea name="bio" id="bio" class="form-control" rows="2" placeholder="Write a short bio about yourself..."></textarea>
+                </div>
+                <div class="col-md-6">
+                    <label for="user_type" class="form-label">User Type</label>
+                    <select name="user_type" id="user_type" class="form-select" required>
+                        <option value="" disabled selected>Choose your role</option>
+                        <option value="learner">Learner</option>
+                        <option value="mentor">Mentor</option>
+                        <option value="both">Both</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-6">
+                    <label for="profile_picture" class="form-label">Profile Picture</label>
+                    <input type="file" class="form-control" name="profile_picture" id="profile_picture" accept="image/*">
+                    <small class="text-muted">Upload a JPEG, PNG, or GIF image.</small>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between mt-4">
+                <a href="javascript:history.back()" class="btn btn-outline-secondary">
+                    <i class="fa fa-arrow-left me-1"></i>Cancel
+                </a>
+                <button type="submit" class="btn btn-primary" name="btn">
+                    <i class="fa fa-user-plus me-1"></i>Sign Up
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock content %}
